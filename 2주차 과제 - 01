@@ -1,0 +1,36 @@
+#include <iostream>
+#include <cstdlib>     //srand 함수 포함 헤더
+#include <ctime>     // time 함수 포함 헤더
+using namespace std;
+int main()
+{
+	srand(time(NULL));     //랜덤한 숫자 설정
+	int ran = rand() % 100;     //변수 ran에 랜덤한 숫자 범위 ~100 중 하나 설정
+	int per, randdd;
+	cout << "랜덤한 수: " << ran << endl;     //랜덤한 수 출력
+	cout << "특정 배수 개수: ";
+	cin >> per;     //특정 배수 개수 입력
+	cout << endl;
+	for(int j=1; j<=per; j++)     //n번째 특정 배수의 'n'번 반복 루트
+	{
+		cout << j << "번째 특정 배수: ";
+		cin >> randdd;     //특정 배수 입력
+		cout << "<특정 배수만 출력하는 프로그램>" << endl;
+		for (int i = 1; i <= ran; i++)     //랜덤한 숫자 내의 모든 수들 반복 루트
+		{
+			if (i % randdd != 0)     //해당 수 나누기 특정 배수의 나머지가 0이 아님
+				continue;     //깨고 나옴
+			cout << i << ", ";     //결론적으로 해당 수 나누기 특정 배수의 나머지가 0인 수만 출력
+		}
+		cout << endl;
+		cout << "<특정 배수 제외 출력하는 프로그램>" << endl;
+		for (int j = 1; j <= ran; j++)     //랜덤한 숫자 내의 모든 수들 반복 루트
+		{
+			if (j % randdd == 0)     // 해당 수 나누기 특정 배수의 나머지가 0임
+				continue;     //깨고 나옴
+			cout << j << ", ";     //결론적으로 해당 수 나누기 특정 배수의 나머지가 0이 아닌 수만 출력
+		}
+		cout << endl;
+	}
+	return 0;
+}
