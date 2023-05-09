@@ -1,0 +1,94 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+void myaccount(int x, int y, int z, int r)     //myaccount 함수 선언
+{
+	cout<<"------------------ swing 계좌 정보 ------------------"<<endl;
+	cout << "|   " << "예금" << "   |   " << "적금" << "   |   " << "주택청약" << "   |   " << "주식계좌" << "   |" << endl;
+	cout<<"|   "<<x<<"   |   "<<y<<"   |       "<<z<<"      |      "<<r<<"      |"<<endl;     //main 함수의 a, b, c, d 이용하여 출력
+	cout<<"-----------------------------------------------------"<<endl;
+}
+
+int total(int x, int y, int z, int r)     //total 함수 선언
+{
+	int total_money=x+y+z+r;     //total_money 변수에 main 함수의 a, b, c, d 이용하여 총합 연산
+	return total_money;     //총합 total_money 리턴
+}
+
+int main()
+{
+	int num, num2;     //회원가입, 로그인 변수 선언
+	int a = 5000, b = 4000, c = 0, d = 10;     //예금 적금 주택청약 주식계좌 값 저장
+	string name, id, pw,id1, pw1;     //이름, 아이디, 패스워드, 로그인아이디, 로그인패스워드 변수선언
+	while (true)     //무한루프
+	{
+		cout << "********** swing 은행 **********" << endl;
+		cout << "1. 회원가입" << endl;
+		cout << "2. 로그인" << endl;
+		cout << endl << "번호를 입력하세요 >> ";
+		cin >> num;
+		if (num == 1)      //회원가입 과정
+		{
+			cout << endl << "이름: ";
+			cin >> name;
+			cout << "아이디: ";
+			cin >> id;
+			cout << "비밀번호: ";
+			cin >> pw;
+			cout << endl << "===== 회원가입 성공 =====" << endl << endl;
+			continue;     //은행 메뉴로 돌아가기
+		}
+		else if (num == 2)     //로그인 과정
+		{
+			cout << endl << "아이디: ";
+			cin >> id1;
+			cout << "비밀번호: ";
+			cin >> pw1;
+			if (id1 != id or pw1 != pw)     //아이디 혹은 비밀번호 틀림
+			{
+				cout << endl << "아이디 혹은 비밀번호가 틀렸습니다." << endl << endl;
+				continue;     //은행 메뉴로 돌아가기
+			}
+			else     //아이디와 비밀번호가 맞음
+			{
+				cout << endl << "===== 로그인 성공 =====" << endl;
+				cout << endl << name << "님 환영합니다." << endl;
+				while (true)     //무한루프
+				{
+					cout << endl << "********** swing 자산 관리 서비스 **********" << endl;
+					cout << "1. 계좌 정보 출력" << endl;
+					cout << "2. 총 자산 출력" << endl;
+					cout << "3. 로그아웃" << endl;
+					cout << endl << "번호를 입력하세요 >> ";
+					cin >> num2;     //메뉴 번호 입력
+					if (num2 == 1)     //계좌 정보 출력
+					{
+						cout << endl;
+						myaccount(a, b, c, d);     //myaccount함수 호출
+					}
+					else if (num2 == 2)     //총 자산 출력
+					{
+						cout << endl << "현재 swing 자산관리 서비스에 등록된 회원님의 총 자산은 " << total(a, b, c, d) << "원 입니다." << endl;     //총 자산 출력
+					}
+					else if (num2 == 3)     //로그아웃
+					{
+						cout << endl << "로그아웃 되었습니다. 안녕히 가세요." << endl;
+						break;     //무한루프 탈출
+					}
+					else     //다른 번호 입력시
+					{
+						cout << endl << "정확한 번호를 입력하세요" << endl;
+					}
+				}
+				break;     //무한루프 탈출
+			} 
+		}
+		else     //다른 번호 입력시
+		{ 
+			cout << endl << "정확한 번호를 입력하세요" << endl << endl;
+			continue;     //메뉴 화면으로 돌아가기
+		}
+	}
+	return 0;
+}
