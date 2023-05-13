@@ -5,15 +5,15 @@ using namespace std;
 void myaccount(int* b, string* bn)     //myaccount 함수 선언
 {
 	cout << "------------------ swing 계좌 정보 ------------------" << endl;
-	cout << "|   " << *bn << "   |   " << *(bn + 1) << "   |   " << *(bn + 2) << "   |   " << *(bn + 3) << "   |" << endl;
-	cout << "|   " << *b << "   |   " << *(b + 1) << "   |       " << *(b + 2) << "      |      " << *(b + 3) << "      |" << endl;     //main 함수의 a, b, c, d 이용하여 출력
+	cout << "|   " << *bn << "   |   " << *(bn + 1) << "   |   " << *(bn + 2) << "   |   " << *(bn + 3) << "   |" << endl;      //main의 bank_name 함수 출력
+	cout << "|   " << *b << "   |   " << *(b + 1) << "   |       " << *(b + 2) << "      |      " << *(b + 3) << "      |" << endl;     //main의 bank 함수 출력
 	cout << "-----------------------------------------------------" << endl;
 }
 
 int total(int* b)     //total 함수 선언
 {
 	int total_money = 0;
-	for (int i = 0;i < 4;i++)     //total_money 변수에 bank_money 총합 연산
+	for (int i = 0;i < 4;i++)     //total_money 변수에 main의 bank_money 총합 연산
 	{
 		total_money += *(b+i);
 	}
