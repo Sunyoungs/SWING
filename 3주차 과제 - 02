@@ -2,25 +2,34 @@
 #include <string>
 using namespace std;
 
-void myaccount(int x, int y, int z, int r)     //myaccount 함수 선언
+void myaccount(int* b, string* bn)     //myaccount 함수 선언
 {
-	cout<<"------------------ swing 계좌 정보 ------------------"<<endl;
-	cout << "|   " << "예금" << "   |   " << "적금" << "   |   " << "주택청약" << "   |   " << "주식계좌" << "   |" << endl;
-	cout<<"|   "<<x<<"   |   "<<y<<"   |       "<<z<<"      |      "<<r<<"      |"<<endl;     //main 함수의 a, b, c, d 이용하여 출력
-	cout<<"-----------------------------------------------------"<<endl;
+	cout << "------------------ swing 계좌 정보 ------------------" << endl;
+	cout << "|   " << *bn << "   |   " << *(bn + 1) << "   |   " << *(bn + 2) << "   |   " << *(bn + 3) << "   |" << endl;
+	cout << "|   " << *b << "   |   " << *(b + 1) << "   |       " << *(b + 2) << "      |      " << *(b + 3) << "      |" << endl;     //main 함수의 a, b, c, d 이용하여 출력
+	cout << "-----------------------------------------------------" << endl;
 }
 
-int total(int x, int y, int z, int r)     //total 함수 선언
+int total(int* b)     //total 함수 선언
 {
-	int total_money=x+y+z+r;     //total_money 변수에 main 함수의 a, b, c, d 이용하여 총합 연산
+	int total_money = 0;
+	for (int i = 0;i < 4;i++)     //total_money 변수에 bank_money 총합 연산
+	{
+		total_money += *(b+i);
+	}
 	return total_money;     //총합 total_money 리턴
 }
 
 int main()
 {
 	int num, num2;     //회원가입, 로그인 변수 선언
-	int a = 5000, b = 4000, c = 0, d = 10;     //예금 적금 주택청약 주식계좌 값 저장
-	string name, id, pw,id1, pw1;     //이름, 아이디, 패스워드, 로그인아이디, 로그인패스워드 변수선언
+	int bank[4] = { 5000, 4000, 0, 10 };     //예금 적금 주택청약 주식계좌 값 저장
+	int* bb = NULL;     //포인터 함수 선언
+	bb = bank;
+	string bank_name[4] = { "예금", "적금", "주택청약", "주식계좌" };     //예금 적금 주택청약 주식계좌 이름 저장
+	string* bbn = NULL;     //포인터 함수 선언
+	bbn = bank_name;
+	string name, id, pw, id1, pw1;     //이름, 아이디, 패스워드, 로그인아이디, 로그인패스워드 변수선언
 	while (true)     //무한루프
 	{
 		cout << "********** swing 은행 **********" << endl;
@@ -65,11 +74,11 @@ int main()
 					if (num2 == 1)     //계좌 정보 출력
 					{
 						cout << endl;
-						myaccount(a, b, c, d);     //myaccount함수 호출
+						myaccount(bb, bbn);     //myaccount함수 호출
 					}
 					else if (num2 == 2)     //총 자산 출력
 					{
-						cout << endl << "현재 swing 자산관리 서비스에 등록된 회원님의 총 자산은 " << total(a, b, c, d) << "원 입니다." << endl;     //총 자산 출력
+						cout << endl << "현재 swing 자산관리 서비스에 등록된 회원님의 총 자산은 " << total(bb) << "원 입니다." << endl;     //총 자산 출력
 					}
 					else if (num2 == 3)     //로그아웃
 					{
@@ -82,10 +91,10 @@ int main()
 					}
 				}
 				break;     //무한루프 탈출
-			} 
+			}
 		}
 		else     //다른 번호 입력시
-		{ 
+		{
 			cout << endl << "정확한 번호를 입력하세요" << endl << endl;
 			continue;     //메뉴 화면으로 돌아가기
 		}
