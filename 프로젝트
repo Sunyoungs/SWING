@@ -1,0 +1,249 @@
+#include <iostream>
+#include <string>
+#include <map>
+using namespace std;
+
+struct Transaction {  // 내역을 저장할 구조체
+    double amount;
+    string category;
+    string date;
+};
+
+struct Account {     //구조체 이용
+    string username;
+    string id;
+    string password;   //사용자의 이름, 아이디, 비번을 저장하는 문자열(변수 설정)
+    double balance;
+    map<string, double> expense; // 지출 내역을 저장할 맵
+    map<string, double> income;  // 수입 내역을 저장할 맵
+    map<string, Transaction> transactions;  // 날짜를 키로 사용하여 내역을 저장할 맵
+};
+
+map<string, Account> accountMap;
+
+void loginMenu() {         //프로그래밍 첫부분에 회원가입/로그인 메뉴를 실행시킴
+    cout << "*********** 2023 가계부 ***********" << endl;
+    cout << "1. 회원가입" << endl;
+    cout << "2. 로그인" << endl;
+    cout << endl;
+    cout << "번호를 입력하세요: ";
+}
+
+void registerAccount() {    //회원가입/로그인 메뉴에서 사용자가 1번을 선택할 경우 회원가입페이지를 실행시킴
+    string username, id, password;
+    cout << endl;
+    cout << "회원가입 페이지" << endl;
+    cout << "이름: ";
+    cin >> username;
+    cout << "아이디: ";
+    cin >> id;
+    cout << "비밀번호: ";
+    cin >> password;
+    accountMap[id] = { username,id, password, 0.0 };   //새로운 계정 추가 역할, accoutMap은 string타입의 사용자 이름, 아이디, 비번을 저장함. 이때 초기값을 0.0으로 설정시킴
+    cout << "*********** 회원가입 완료 ***********" << endl;
+    cout << endl;
+}
+
+Account* login() {     //로그인 기능 구현을 위한 login()함수, login()함수의 반환 타입을 Account*로 정의함.->Account 객체에 대한 포인터를 반환할 수 있음!
+    string id, passwd;   //사용자로부터 입력받을 내용
+    cout << endl;
+    cout << "로그인 페이지" << endl;
+    cout << "아이디를 입력하세요: ";
+    cin >> id;
+    cout << "비밀번호를 입력하세요: ";
+    cin >> passwd;
+
+    if (accountMap.count(id) == 0 || accountMap[id].password != passwd) {  //입력받은 아이디와 비밀번호가 accountMap(회원가입내용)에 존재하는지 않거나 아이디에 대한비밀번호가 유효하지 않은지 확인함
+        cout << endl;
+        cout << "아이디 혹은 비밀번호가 틀렸습니다." << endl;   //만약 위 조건문에 포함이 된다면 틀렸다는 내용 출력 시킴
+        cout << endl;
+        return nullptr;     //로그인 실패하면 nullptr를 반환하여 실패 상태를 알려줌
+    }
+    else {
+        cout << endl;
+        cout << "********** 로그인 성공 **********" << endl;      //아디와 비번이 accountMap에 저장되어있고, 일치하면 로그인 성공 내용 출력 시킴
+        cout << endl;
+        return &accountMap[id];     //로그인 성공한 경우 accountMap에서 해당 아이디에 대한 포인터를 반환시키고 로그인한 사용자의 정보에 접근할 수 있게끔함
+    }
+}
+
+void printMenu(const string& username) {     //가계부 메뉴 출력
+    cout << "*********** " << username << "님의 2023 가계부 **********" << endl;   //중간에 로그인한 사용자의 이름이 포함되도록 제목을 만듬
+    cout << endl;
+    cout << "1. 지출/수입 내역 기록" << endl;
+    cout << "2. 카테고리 설정" << endl;
+    cout << "3. 지출 조회" << endl;
+    cout << "4. 목표 지출 설정" << endl;
+    cout << "5. 로그아웃" << endl;
+    cout << endl;
+    cout << "번호를 입력하세요: ";
+}
+
+void financialMenu(Account& account) {
+    int choice;
+    while (true) {
+        printMenu(account.username);
+        cin >> choice;
+        switch (choice) {
+        case 1: // 지출/수입 내역 기록 기능 구현
+        {
+            int type;
+            double amount;
+            string category;
+            string date;
+
+            cout << "1. 지출" << endl;
+            cout << "2. 수입" << endl;
+            cout << "입력할 내역의 유형을 선택하세요: ";
+            cin >> type;
+
+            if (type == 1) {
+                cout << "지출 금액을 입력하세요: ";
+                cin >> amount;
+                amount = -amount; // 지출은 음수로 표시
+            }
+            else if (type == 2) {
+                cout << "수입 금액을 입력하세요: ";
+                cin >> amount;
+            }
+            else {
+                cout << "잘못된 유형을 선택하였습니다." << endl;
+                break;
+            }
+
+            cout << "카테고리를 입력하세요: "; //카테고리 지정
+            cin >> category;
+
+            cout << "날짜를 입력하세요 (예: 2023-05-23): "; //날짜 입력
+            cin >> date;
+
+            // 내역을 저장
+            Transaction transaction{ amount, category };
+            if (type == 1) { //지출내역 저장
+                account.expense[date] += amount;
+            }
+            else { //수입내역 저장
+                account.income[date] += amount;
+            }
+            account.balance += amount;
+
+            account.transactions[date] = transaction; // 날짜별 내역 저장
+
+            cout << "기록되었습니다." << endl;
+
+            break;
+        }
+
+        case 2:  // 카테고리 설정 기능 구현
+        {
+            int size = 5;
+            string cate[] = { "카페·간식", "쇼핑", "편의점·마트·잡화", "식비", "생활" };  //기존 카테고리
+            int num, delcate;
+            string newcate;
+            int len_cate = sizeof(cate) / sizeof(cate[0]);  //카테고리 배열 길이 
+            cout << "********** 현재 카테고리 **********" << endl;
+            for (int i = 0; i < len_cate; i++)   //현재 카테고리 출력
+            {
+                cout << i + 1 << ". " << cate[i] << endl;
+            }
+            while (true)
+            {
+                cout << endl << "********** 카테고리 메뉴 *********" << endl;
+                cout << "1. 카테고리 추가" << endl;
+                cout << "2. 카테고리 삭제" << endl;
+                cout << "3. 카테고리 메뉴 종료" << endl;
+                cout << endl << "번호를 입력하세요: ";
+                cin >> num;
+                if (num == 1)  //카테고리 추가
+                {
+                    cout << endl << "********** 카테고리 추가 **********" << endl;
+                    cout << endl << "추가할 카테고리를 입력하세요: ";
+                    cin >> newcate;  //추가할 카테고리
+                    if (size < len_cate)  //카테고리 추가하려고 코드를 짰으나 제대로 작동이 안됨.. 다시 갈아엎을 예정
+                    {
+                        cate[size] = newcate;
+                        size++;
+                        len_cate++;
+                    }
+                    cout << endl << "********** 현재 카테고리 **********" << endl;
+                    for (int i = 0; i < len_cate; i++)
+                    {
+                        cout << i + 1 << ". " << cate[i] << endl;
+                    }
+                }
+                else if (num == 2)  //카테고리 삭제
+                {
+                    cout << endl << "********** 카테고리 삭제 **********" << endl;
+                    cout << endl << "삭제할 카테고리의 숫자를 입력하세요: ";
+                    cin >> delcate;
+                    for (int i = 0;i < len_cate;i++)  //배열 숫자 비교
+                    {
+                        if (i + 1 == delcate)   //원하는 카테고리 번호 선택
+                        {
+                            for (;i + 1 < len_cate;i++)  //뒤의 카테고리 배열 앞으로 당기기
+                            {
+                                cate[i] = cate[i + 1];
+                            }
+                            len_cate--;
+                        }
+                    }
+                    for (int i = 0; i < len_cate; i++)
+                    {
+                        cout << i + 1 << ". " << cate[i] << endl;
+                    }
+                }
+                else if (num == 3)  //카테고리 메뉴 종료
+                {
+                    cout << "카테고리 메뉴를 종료합니다." << endl;
+                    break;
+                }
+                else
+                {
+                    cout << "정확한 숫자를 입력하세요." << endl;
+                    continue;
+                }
+            }
+            break;
+        }
+        case 3:
+            // 지출 조회 기능 구현
+            break;
+        case 4:
+            // 목표 지출 설정 기능 구현
+            break;
+        case 5:
+            cout << "로그아웃 되었습니다." << endl;
+            return;
+        default:
+            cout << "잘못된 선택입니다." << endl;
+            break;
+        }
+    }
+}
+
+int main() {         //main()함수 정의
+    int choice;       //메뉴 선택번호를 정수형 변수로 설정
+    Account* currentAccount = nullptr;        //Account객체에 대한 포인터를 선언하고 nullptr로 초기화함(현재 로그인된 계정 정보를 저장하기 위함)
+    while (true) {       //루프 시작
+        loginMenu();   //사용자가 로그인을 성공할 때까지 회원가입/로그인 메뉴창이 반복적으로 나타남
+        cin >> choice;   //사용자로부터 메뉴 번호를 입력 받음
+        switch (choice) {    //선택번호에 따라 다른 작업을 수행하기 위해서 switch문 사용
+        case 1:
+            registerAccount();         //registerAccount()함수 호출해서 회원가입 페이지 실행
+            break;
+        case 2:
+            currentAccount = login();
+            if (currentAccount != nullptr) {
+
+                financialMenu(*currentAccount);   //로그인이 성공되면 가계부 메뉴 출력시킴
+            }
+            break;
+        default:            //메뉴 선택 번호와 다를 경우
+            cout << endl;
+            cout << "잘못된 선택입니다." << endl;
+            cout << endl;
+            break;
+        }
+    }
+    return 0;
+}
