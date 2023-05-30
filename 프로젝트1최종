@@ -1,0 +1,319 @@
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+struct Account {     //구조체 이용
+    string username;
+    string id;
+    string password;   //사용자의 이름, 아이디, 비번을 저장하는 문자열(변수 설정)
+    double balance;
+};
+
+class AccountMap {           //AccountMap이라는 클래스 정의
+private:                    //클래스 내부에서만 접근할 수 있도록
+    Account* accounts;       //Acount 포인터 형태의 accouts 멤버 변수, int형태의 size 변수 설정
+    int size;                //accountssms Account 객체 배열을 가리키는 포인터
+public:                       //클래스 외부
+    AccountMap(int capacity) {         //AccountMap 클래스의 생성자 정의, capacity라는 매개변수 설정
+        accounts = new Account[capacity];      //accoutns 포인터를 capacity만큼의 Account 배열로 동적으로 할당
+        size = 0;                       //0으로 초기화함
+    }
+    ~AccountMap() {                   //클래스의 소멸자를 정의하기 위해
+        delete[] accounts;           //accounts 포인터가 가리키는 메모리 블록 해제함
+    }
+
+    void addAccount(const Account& account) {       //addAccount함수 정의함. Account 객체를 accounts배열에 추가함
+        accounts[size++] = account;
+    }
+
+    Account* findAccount(const string& id) {          //findAccount 함수 정의
+        for (int i = 0; i < size; i++) {               //id와 일치하는 Account객체를 찾아서 해당 객체에 대한 포인터로 반환함.
+            if (accounts[i].id == id) {
+                return &accounts[i];
+            }
+        }
+        return nullptr;                      //일치하는 객체가 없을 경우 nullptr 반환함
+    }
+};
+
+void loginMenu() {         //프로그래밍 첫부분에 회원가입/로그인 메뉴를 실행시킴
+    cout << "*********** 2023 가계부 ***********" << endl;
+    cout << "1. 회원가입" << endl;
+    cout << "2. 로그인" << endl;
+    cout << endl;
+    cout << "번호를 입력하세요: ";
+}
+
+void registerAccount(AccountMap& accountMap) {    //회원가입/로그인 메뉴에서 사용자가 1번을 선택할 경우 회원가입페이지를 실행시킴
+    string username, id, password;
+    cout << endl;
+    cout << "회원가입 페이지" << endl;
+    cout << "이름: ";
+    cin >> username;
+    cout << "아이디: ";
+    cin >> id;
+    cout << "비밀번호: ";
+    cin >> password;
+
+    Account account = { username, id, password, 0.0 };
+    accountMap.addAccount(account);
+    cout << "*********** 회원가입 완료 ***********" << endl;
+    cout << endl;
+}
+
+Account* login(AccountMap& accountMap) {   //AccountMap 객체에 대한 참조를 받아드링고 Account 객체에 대한 포인터로 반환함.
+    string id, password;          //id와 password를 문자열 변수 선언
+    cout << endl;
+    cout << "로그인 페이지" << endl;
+    cout << "아이디를 입력하세요: ";
+    cin >> id;
+    cout << "비밀번호를 입력하세요: ";
+    cin >> password;
+
+    Account* account = accountMap.findAccount(id);      //accountMap에서 findAccount 함수를 호출하여 사용자가 입력한 아이디와 일치하는 객체를 찾음
+    if (account == nullptr || account->password != password) {
+        cout << endl;
+        cout << "아이디 혹은 비밀번호가 틀렸습니다." << endl;
+        cout << endl;
+        return nullptr;               //account가 초기값이거나 객체의 비밀번호가 입력된 비밀번호화 일치하지 않을 때
+    }
+    else {
+        cout << endl;
+        cout << "********** 로그인 성공 **********" << endl;
+        cout << endl;
+        return account;
+    }
+}
+
+
+void printMenu(const string& username) {     //가계부 메뉴 출력
+    cout << "*********** " << username << "님의 2023 가계부 **********" << endl;   //중간에 로그인한 사용자의 이름이 포함되도록 제목을 만듬
+    cout << endl;
+    cout << "1. 지출/수입 내역 기록" << endl;
+    cout << "2. 카테고리 설정" << endl;
+    cout << "3. 지출 조회" << endl;
+    cout << "4. 목표 지출 설정" << endl;
+    cout << "5. 로그아웃" << endl;
+    cout << endl;
+    cout << "번호를 입력하세요: ";
+}
+
+
+
+// case1 부분 클래스 추후에 수정 예정
+class Transaction { //지출 또는 수입 내역을 나타냄
+public:
+    double amount;
+    string category;
+    string date;
+
+    Transaction(double amount, const string& category, const string& date)
+        : amount(amount), category(category), date(date) {}
+}; //amount, category, date를 매개변수로 받고 변수를 초기화
+
+class Account {
+public:
+    string username;
+    string id;
+    string password;
+    double balance;
+    Transaction* transactions; //Transaction 객체 배열을 가리키는 포인터
+    int transactionCount; //현재 저장된 거래 내역의 개수
+    int transactionCapacity; //현재 할당된 거래 내역 배열의 용량
+
+    Account(const string& username, const string& id, const string& password)
+        : username(username), id(id), password(password), balance(0.0), transactions(nullptr), transactionCount(0), transactionCapacity(0) {}
+    //username, id, password를 매개변수로 받고 생성자의 초기화 목록을 통해 transactions는 nullptr로 초기화, transactionCount와 transactionCapacity는 0으로 초기화
+
+    void addTransaction(const Transaction& transaction) { //Transaction 객체를 받아서 거래 내역을 추가
+        if (transactionCount >= transactionCapacity) {
+            // 배열 크기를 증가시킴
+            int newCapacity = (transactionCapacity == 0) ? 1 : transactionCapacity * 2;
+            Transaction* newTransactions = new Transaction[newCapacity];
+            if (transactions != nullptr) {
+                copy(transactions, transactions + transactionCount, newTransactions);
+                delete[] transactions;
+            }
+            transactions = newTransactions;
+            transactionCapacity = newCapacity;
+        }
+        // 배열에 객체 추가
+        transactions[transactionCount] = transaction;
+        transactionCount++;
+    }
+
+};
+
+
+
+void financialMenu(Account& account) {
+    int choice;
+    while (true) {
+        printMenu(account.username);
+        cin >> choice;
+        switch (choice) {
+        case 1:  // 지출/수입 내역 기록 기능 구현
+        {
+            int type;
+            double amount;
+            string category;
+            string date;
+
+            cout << "1. 지출" << endl;
+            cout << "2. 수입" << endl;
+            cout << "입력할 내역의 유형을 선택하세요: ";
+            cin >> type;
+
+            if (type == 1) {
+                cout << "지출 금액을 입력하세요: ";
+                cin >> amount;
+                amount = -amount; // 지출은 음수로 표시
+            }
+            else if (type == 2) {
+                cout << "수입 금액을 입력하세요: ";
+                cin >> amount;
+            }
+            else {
+                cout << "잘못된 유형을 선택하였습니다." << endl;
+                break;
+            }
+
+            cout << "카테고리를 입력하세요: "; //카테고리 지정
+            cin >> category;
+
+            cout << "날짜를 입력하세요 (예: 2023-05-23): "; //날짜 입력
+            cin >> date;
+
+            // 내역을 저장
+            Transaction transaction{ amount, category, date };
+            account.addTransaction(transaction);
+
+            account.balance += amount;
+
+            cout << "기록되었습니다." << endl;
+
+            break;
+        }
+        case 2:  //카테고리 설정 기능 구현
+        {
+            int size = 5;
+            vector<string> cate = { "카페·간식", "쇼핑", "편의점·마트·잡화", "식비", "생활" };  //기존 카테고리>
+            int num, delcate;
+            string newcate;
+            cout << endl << "********** 현재 카테고리 **********" << endl;
+            for (int i = 0; i < cate.size(); i++)   //현재 카테고리 출력
+            {
+                cout << i + 1 << ". " << cate[i] << endl;
+            }
+            while (true)
+            {
+                cout << endl << "********** 카테고리 메뉴 *********" << endl;
+                cout << "1. 카테고리 추가" << endl;
+                cout << "2. 카테고리 삭제" << endl;
+                cout << "3. 카테고리 메뉴 종료" << endl;
+                cout << endl << "번호를 입력하세요: ";
+                cin >> num;
+                if (num == 1)  //카테고리 추가
+                {
+                    cout << endl << "********** 카테고리 추가 **********" << endl;
+                    cout << endl << "추가할 카테고리를 입력하세요: ";
+                    cin >> newcate;  //추가할 카테고리
+                    cate.push_back(newcate);
+                    cout << endl << "********** 현재 카테고리 **********" << endl;
+                    for (int i = 0; i < cate.size(); i++)
+                    {
+                        cout << i + 1 << ". " << cate[i] << endl;
+                    }
+                }
+                else if (num == 2)  //카테고리 삭제
+                {
+                    cout << endl << "********** 카테고리 삭제 **********" << endl;
+                    cout << endl << "삭제할 카테고리의 숫자를 입력하세요: ";
+                    cin >> delcate;
+                    if (delcate > cate.size())
+                    {
+                        cout << endl << "정확한 숫자를 입력하세요" << endl << endl;
+                        for (int i = 0; i < cate.size(); i++)
+                        {
+                            cout << i + 1 << ". " << cate[i] << endl;
+                        }
+                        continue;
+                    }
+                    for (int i = 0;i < cate.size();i++)  //배열 숫자 비교
+                    {
+                        if (i + 1 == delcate)   //원하는 카테고리 번호 선택
+                        {
+                            cate.erase(cate.begin() + i);
+                        }
+                    }
+                    cout << endl << "********** 현재 카테고리 **********" << endl;
+                    for (int i = 0; i < cate.size(); i++)
+                    {
+                        cout << i + 1 << ". " << cate[i] << endl;
+                    }
+                }
+                else if (num == 3)  //카테고리 메뉴 종료
+                {
+                    cout << "카테고리 메뉴를 종료합니다." << endl << endl;
+                    break;
+                }
+                else
+                {
+                    cout << "정확한 숫자를 입력하세요." << endl;
+                    continue;
+                }
+            }
+        }
+        case 3:
+            // 지출 조회 기능 구현
+            break;
+        case 4:
+        {
+            // 목표 지출 설정 기능 구현
+            int mokpyo = 0, new_mokpyo;
+            cout << endl << "현재 @@님의 지출 목표는 " << mokpyo << "원 입니다." << endl;
+            cout << "새로운 지출 목표를 입력하세요: ";
+            cin >> new_mokpyo;
+            cout << endl << "변경되었습니다." << endl << endl;
+            mokpyo = new_mokpyo;
+            break;
+        }
+        case 5:
+            cout << "로그아웃 되었습니다." << endl;
+            return;
+        default:
+            cout << "잘못된 선택입니다." << endl;
+            break;
+        }
+    }
+}
+
+int main() {         //main()함수 정의
+    const int MAX_ACCOUNTS = 100;        //최대 계정 수를 100으로 초기화
+    AccountMap accountMap(MAX_ACCOUNTS);
+    int choice;                           //정수형 변수를 선언하여 메뉴 선택
+    Account* currentAccount = nullptr;      //currentAccount라는 Account 객체에 대한 포인터 선언 후 nullptr로 초기화 함
+    while (true) {
+        loginMenu(); //로그인 메뉴 출력
+        cin >> choice;
+        switch (choice) {        //switch문으로 선택지에 따라 다른 동작 수행
+        case 1:
+            registerAccount(accountMap);         //계정 등록을 위해 registerAccount()함수 호출
+            break;
+        case 2:
+            currentAccount = login(accountMap);
+            if (currentAccount != nullptr) {
+                financialMenu(*currentAccount);
+                currentAccount = nullptr;  // 로그아웃 후에 currentAccount를 초기화하여 다시 로그인할 수 있도록 함
+            }
+            break;
+        default:
+            cout << endl;
+            cout << "잘못된 선택입니다." << endl;
+            cout << endl;
+            break;
+        }
+    }
+    return 0;
+}
