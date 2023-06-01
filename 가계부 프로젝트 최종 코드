@@ -89,6 +89,7 @@ void loginMenu() {         //프로그래밍 첫부분에 회원가입/로그인
     cout << "*********** 2023 가계부 ***********" << endl;
     cout << "1. 회원가입" << endl;
     cout << "2. 로그인" << endl;
+    cout << "3. 가계부 종료" << endl;
     cout << endl;
     cout << "번호를 입력하세요: ";
 }
@@ -362,6 +363,8 @@ int main() {         //main()함수 정의
                 currentAccount = nullptr;  // 로그아웃 후에 currentAccount를 초기화하여 다시 로그인할 수 있도록 함
             }
             break;
+        case 3:
+            return 0;
         default:
             cout << endl;
             cout << "잘못된 선택입니다." << endl;
